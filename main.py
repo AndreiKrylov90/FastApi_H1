@@ -1,8 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
-from random import choice
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
 
 class User(BaseModel):
     id: int
@@ -50,3 +53,8 @@ async def delete_user(user_id: int):
             users.remove(user)
             return {"message": "User was removed"}
     return {"message": "User was not found"}
+
+
+@app.get("/all_users/", response_class=HTMLResponse)
+async def read_users(request: Request):
+    return templates.TemplateResponse("users.html", {"request": request, "users": users})
